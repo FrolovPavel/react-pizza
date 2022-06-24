@@ -22,7 +22,7 @@ function App() {
           <h2 className="content__title">Все пиццы</h2>
           <div className="content__items">
             {pizzas.map(pizzaDate => (
-              <PizzaBlock {...pizzaDate}/>
+              <PizzaBlock key={pizzaDate.id} {...pizzaDate}/>
             ))}
           </div>
         </div>
