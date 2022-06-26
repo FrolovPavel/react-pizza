@@ -2,9 +2,9 @@
 
 .header {
   border-bottom: 1px solid $gray-line;
-  padding: 40px 0;
+  padding: $main-offset 0;
 
-  .container {
+  &__container {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -12,6 +12,7 @@
 
   &__logo {
     display: flex;
+    align-items: center;
 
     img {
       margin-right: 15px;
@@ -23,10 +24,17 @@
       letter-spacing: 1%;
       text-transform: uppercase;
       font-weight: 800;
+
+      @media(max-width: 380px) {
+        display: none;
+      }
     }
 
     p {
       color: #7b7b7b;
+      @media(max-width: 470px) {
+        display: none;
+      }
     }
   }
 }

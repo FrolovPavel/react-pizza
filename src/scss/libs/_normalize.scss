@@ -31,7 +31,11 @@ h5 {
 }
 
 h1 {
-  font-size: 48px;
+  font-size: 36px;
+
+  @media(max-width: 456px) {
+    font-size: 32px;
+  }
 }
 
 h2 {

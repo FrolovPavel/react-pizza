@@ -1,6 +1,11 @@
 @import '../variables';
 
 .categories {
+  @media(max-width: 1007px) {
+    width: 100%;
+    overflow: auto;
+  }
+
   ul {
     display: flex;
 

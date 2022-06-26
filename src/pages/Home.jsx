@@ -8,25 +8,31 @@ const Home = () => {
 
   const [pizzas, setPizzas] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [categoryId, setCategoryId] = useState(0)
+  const [sort, setSort] = useState({name: 'популярности', sortType: 'rating', direction: 'desc'})
 
   useEffect(() => {
-    fetch('https://62b5a53eda3017eabb1f580c.mockapi.io/pizzas')
+    setIsLoading(true)
+    fetch(`https://62b5a53eda3017eabb1f580c.mockapi.io/pizzas?${categoryId ? `category=${categoryId}` : ''}&sortBy=${sort.sortType}&order=${sort.direction}`)
       .then((res) => {
         return res.json()
       })
       .then((arr) => {
-        setPizzas(arr)
-        setIsLoading(false)
+        setTimeout(() => {
+          setPizzas(arr)
+          setIsLoading(false)
+        }, 250)
       })
-  }, [])
+    window.scrollTo(0, 0)
+  }, [categoryId, sort])
 
   return (
     <>
       <div className="content__top">
-        <Categories/>
-        <Sort/>
+        <Categories value={categoryId} onClickCategory={(index) => setCategoryId(index)}/>
+        <Sort value={sort} onChangeSort={(index) => setSort(index)}/>
       </div>
-      <h2 className="content__title">Все пиццы</h2>
+      <h1 className="content__title">Все пиццы</h1>
       <div className="content__items">
         {
           isLoading

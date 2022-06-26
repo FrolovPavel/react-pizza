@@ -12,7 +12,7 @@ function App() {
 
 
   return (
-    <div className="wrapper">
+    <>
       <Header/>
       <div className="content">
         <div className="container">
@@ -23,7 +23,7 @@ function App() {
           </Routes>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

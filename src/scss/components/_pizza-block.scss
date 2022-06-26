@@ -1,16 +1,15 @@
 @import '../variables';
 
 .pizza-block {
-  width: 280px;
+  max-width: 450px;
   text-align: center;
-  margin-bottom: 65px;
-
-  &:not(:nth-of-type(4n)) {
-    margin-right: 35px;
-  }
 
   &__image {
-    width: 260px;
+
+    img {
+      width: 100%;
+      display: block;
+    }
   }
 
   &__title {
@@ -62,7 +61,7 @@
 
   &__price {
     font-weight: bold;
-    font-size: 22px;
+    font-size: 18px;
     line-height: 27px;
     letter-spacing: 0.015em;
   }
