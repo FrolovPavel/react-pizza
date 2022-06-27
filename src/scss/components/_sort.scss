@@ -2,9 +2,11 @@
 
 .sort {
   position: relative;
+  cursor: pointer;
+  width: 305px;
 
   &__icon {
-    transition: $duration ease-in transform;
+    transition: 0.3s ease-in transform;
     transform: rotate(180deg);
 
     &.active {
@@ -27,7 +29,26 @@
     span {
       color: $orange;
       border-bottom: 1px dashed $orange;
-      cursor: pointer;
+      transition: 0.3s ease-in all;
+      white-space: nowrap;
+      overflow: hidden;
+      max-width: 157px;
+
+      //&.entering {
+      //  width: 0%;
+      //}
+      //
+      //&.entered {
+      //  width: 100%;
+      //}
+      //
+      //&.exiting {
+      //
+      //}
+      //
+      //&.exited {
+      //  //width: 0%;
+      //}
     }
   }
 
@@ -41,6 +62,26 @@
     overflow: hidden;
     padding: 10px 0;
     width: 205px;
+    transition: $duration ease-in all;
+
+    &.entering {
+      opacity: 0;
+      margin-top: -15px;
+    }
+
+    &.entered {
+      opacity: 1;
+    }
+
+    &.exiting {
+
+    }
+
+    &.exited {
+      opacity: 0;
+      margin-top: -15px;
+      pointer-events: none;
+    }
 
     ul {
       overflow: hidden;

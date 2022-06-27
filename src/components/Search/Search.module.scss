@@ -1,0 +1,41 @@
+.search {
+  position: relative;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  position: absolute;
+  top: 12px;
+  fill: rgb(0, 0, 0, 0.1);
+
+  &_search {
+    left: 15px;
+  }
+
+  &_clear {
+    stroke: rgb(0, 0, 0, 0.1);
+    right: 15px;
+    cursor: pointer;
+    transition: .15s ease-in stroke;
+
+    &:hover {
+      stroke: rgb(0, 0, 0, 0.8);
+    }
+  }
+}
+
+.input {
+  border: 1px solid rgb(0, 0, 0, 0.1);
+  padding: 12px 15px;
+  padding-left: 45px;
+  width: 400px;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: 0.15s ease-in border-color;
+
+  &:focus {
+    border-color: rgb(0, 0, 0, 0.2);
+  }
+}
+

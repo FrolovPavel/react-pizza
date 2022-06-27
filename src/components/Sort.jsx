@@ -1,7 +1,9 @@
 import React, {useState} from 'react';
+import {Transition} from 'react-transition-group';
 
 const Sort = ({value, onChangeSort}) => {
   const [open, setOpen] = useState(false)
+  const [isChangeSelectText, setIsChangeSelectText] = useState(false)
 
   const sortList = [
     {name: 'популярности', sortType: 'rating', direction: 'desc'},
@@ -14,10 +16,12 @@ const Sort = ({value, onChangeSort}) => {
   const sortItemHandler = (index) => {
     onChangeSort(index)
     setOpen(false)
+    setIsChangeSelectText(!isChangeSelectText)
+    setIsChangeSelectText(!isChangeSelectText)
   }
 
   return (
-    <div className="sort">
+    <div onClick={() => setOpen(!open)} className="sort">
       <div className="sort__label">
         <svg
           className={`sort__icon ${open && 'active'}`}
@@ -33,10 +37,18 @@ const Sort = ({value, onChangeSort}) => {
           />
         </svg>
         <b>Сортировка по:</b>
-        <span onClick={() => setOpen(!open)}>{value.name}</span>
+        <Transition
+          in={isChangeSelectText}
+          timeout={150}
+        >
+          {state => <span className={state}>{value.name}</span>}
+        </Transition>
       </div>
-      {open && (
-        <div className="sort__popup">
+      <Transition
+        in={open}
+        timeout={150}
+      >
+        {state => <div className={`sort__popup ${state}`}>
           <ul>
             {sortList.map((sortItem, index) => (
               <li
@@ -48,8 +60,8 @@ const Sort = ({value, onChangeSort}) => {
               </li>
             ))}
           </ul>
-        </div>
-      )}
+        </div>}
+      </Transition>
     </div>
   );
 };
