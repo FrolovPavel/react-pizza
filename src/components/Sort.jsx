@@ -1,27 +1,43 @@
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Transition} from 'react-transition-group';
+import {useSelector, useDispatch} from "react-redux";
+import {setSort, setCurrentPage} from "../redux/slices/filterSlice";
 
-const Sort = ({value, onChangeSort}) => {
+export const sortList = [
+  {name: 'популярности', sortType: 'rating', direction: 'desc'},
+  {name: 'возростанию цены', sortType: 'price', direction: 'asc'},
+  {name: 'убыванию цены', sortType: 'price', direction: 'desc'},
+  {name: 'алфавиту (от A до Я)', sortType: 'title', direction: 'asc'},
+  {name: 'алфавиту (от Я до А)', sortType: 'title', direction: 'desc'},
+]
+
+const Sort = () => {
+
+  const sort = useSelector(state => state.filters.sort)
+  const dispatch = useDispatch()
+  const sortRef = useRef()
   const [open, setOpen] = useState(false)
-  const [isChangeSelectText, setIsChangeSelectText] = useState(false)
+  useEffect(() => {
+    document.body.addEventListener("click", outsideClickHandler)
 
-  const sortList = [
-    {name: 'популярности', sortType: 'rating', direction: 'desc'},
-    {name: 'возростанию цены', sortType: 'price', direction: 'asc'},
-    {name: 'убыванию цены', sortType: 'price', direction: 'desc'},
-    {name: 'алфавиту (от A до Я)', sortType: 'title', direction: 'asc'},
-    {name: 'алфавиту (от Я до А)', sortType: 'title', direction: 'desc'},
-  ]
+    return () => document.body.removeEventListener('click', outsideClickHandler)
+  }, [])
 
-  const sortItemHandler = (index) => {
-    onChangeSort(index)
+  const sortItemHandler = (sortItem) => {
+    dispatch(setSort(sortItem))
+    dispatch(setCurrentPage(1))
     setOpen(false)
-    setIsChangeSelectText(!isChangeSelectText)
-    setIsChangeSelectText(!isChangeSelectText)
   }
 
+  const outsideClickHandler = (event) => {
+    if (!event.path.includes(sortRef.current)) {
+      setOpen(false)
+    }
+  }
+
+
   return (
-    <div onClick={() => setOpen(!open)} className="sort">
+    <div ref={sortRef} className="sort">
       <div className="sort__label">
         <svg
           className={`sort__icon ${open && 'active'}`}
@@ -37,12 +53,7 @@ const Sort = ({value, onChangeSort}) => {
           />
         </svg>
         <b>Сортировка по:</b>
-        <Transition
-          in={isChangeSelectText}
-          timeout={150}
-        >
-          {state => <span className={state}>{value.name}</span>}
-        </Transition>
+        <span onClick={() => setOpen(!open)}>{sort.name}</span>
       </div>
       <Transition
         in={open}
@@ -52,7 +63,7 @@ const Sort = ({value, onChangeSort}) => {
           <ul>
             {sortList.map((sortItem, index) => (
               <li
-                className={value.name === sortItem.name ? 'active' : ''}
+                className={sort.name === sortItem.name ? 'active' : ''}
                 key={index}
                 onClick={() => sortItemHandler(sortItem)}
               >

@@ -1,75 +1,112 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
+import {useNavigate} from 'react-router-dom'
+import {useSelector, useDispatch} from 'react-redux'
+import {setCategoryId, setCurrentPage, incrementCurrentPage, setFilters} from "../redux/slices/filterSlice";
 import Categories from "../components/Categories";
-import Sort from "../components/Sort";
+import Sort, {sortList} from "../components/Sort";
 import Skeleton from "../components/PizzaBlock/Skeleton";
 import PizzaBlock from "../components/PizzaBlock";
+import axios from "axios";
+import qs from 'qs'
+
 import {SearchContext} from "../App";
 
 const Home = () => {
-
+  const {categoryId, sort, currentPage} = useSelector(state => state.filters)
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const isSearch = useRef(false)
+  const isMounted = useRef(false)
   const {searchValue} = useContext(SearchContext)
 
+  const observerRef = useRef()
   const [pizzas, setPizzas] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const [categoryId, setCategoryId] = useState(0)
-  const [sort, setSort] = useState({name: 'популярности', sortType: 'rating', direction: 'desc'})
-  const [isObserve, setIsObserve] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
-
+  const [isObserve, setIsObserve] = useState(true)
 
   useEffect(() => {
-    const callback = (entries, observer) => {
-      if (entries[0].isIntersecting) {
-        setCurrentPage((currentPage) => currentPage + 1)
-        console.log(currentPage, 'peresek')
-      }
+    if (window.location.search) {
+      const params = qs.parse(window.location.search.substring(1))
+
+      const sort = sortList.find(sortItem => {
+        if (sortItem.sortType === params.sort && sortItem.direction === params.order) {
+          return sortItem
+        }
+      })
+
+      dispatch(setFilters({
+        ...params,
+        sort
+      }))
+
+      isSearch.current = true
     }
+  }, [])
 
-    const observer = new IntersectionObserver(callback);
-
-    console.log(isObserve, 'isObserve')
-    const startObserve = () => {
-      if (!isObserve) {
-        observer.observe(document.querySelector('.observer'))
-        setIsObserve(true)
-      }
-    }
-
-    const category = categoryId ? `category=${categoryId}` : ''
+  const fetchPizzas = () => {
+    const api = 'https://62b5a53eda3017eabb1f580c.mockapi.io/pizzas?'
     const search = searchValue ? `&search=${searchValue}` : ''
+    const category = categoryId && !searchValue ? `category=${categoryId}` : ''
     const scrollPagination = searchValue ? '' : `&page=${currentPage}&limit=4`
 
-    fetch(`https://62b5a53eda3017eabb1f580c.mockapi.io/pizzas?${category}&sortBy=${sort.sortType}&order=${sort.direction}${search}${scrollPagination}`)
-      .then((res) => {
-        return res.json()
-      })
-      .then((arr) => {
-
-        if (!arr.length) {
-          observer.unobserve(document.querySelector('.observer'))
-        }
-
+    axios.get(
+      `${api}${category}&sortBy=${sort.sortType}&order=${sort.direction}${search}${scrollPagination}`
+    )
+      .then(response => {
         if (searchValue) {
-          setPizzas(arr)
+          setPizzas(response.data)
         } else {
           if (currentPage === 1) {
-            setPizzas(arr)
+            setPizzas(response.data)
             window.scrollTo(0, 0)
           } else {
             setPizzas(() => {
               return [
                 ...pizzas,
-                ...arr
+                ...response.data
               ]
             })
           }
         }
-
-
+        startObservBottomPage()
         setIsLoading(false)
-        startObserve()
       })
+  }
+
+  useEffect(() => {
+    if (!isSearch.current) {
+      fetchPizzas()
+    }
+
+    isSearch.current = false
+
   }, [categoryId, sort, searchValue, currentPage])
+
+  useEffect(() => {
+    if (isMounted.current) {
+      const queryString = qs.stringify({
+        sort: sort.sortType,
+        order: sort.direction,
+        categoryId,
+      })
+      navigate(`?${queryString}`)
+    }
+
+    isMounted.current = true
+  }, [categoryId, sort, searchValue, currentPage])
+
+  const startObservBottomPage = () => {
+    const observer = new IntersectionObserver(function (entries, observer) {
+      if (entries[0].isIntersecting) {
+        dispatch(incrementCurrentPage())
+      }
+    });
+
+    if (isObserve) {
+      observer.observe(observerRef.current)
+      setIsObserve(false)
+    }
+  }
 
 
   const pizza = pizzas.map(pizzaDate => <PizzaBlock key={pizzaDate.id} {...pizzaDate}/>)
@@ -77,20 +114,15 @@ const Home = () => {
   const skeleton = [...new Array(6)].map((_, index) => <Skeleton key={index}/>)
 
   const onClickCategoryHandler = (index) => {
-    setCategoryId(index)
-    setCurrentPage(1)
-  }
-
-  const onChangeSortHandler = (index) => {
-    setSort(index)
-    setCurrentPage(1)
+    dispatch(setCategoryId(index))
+    dispatch(setCurrentPage(1))
   }
 
   return (
     <>
       <div className="content__top">
         <Categories value={categoryId} onClickCategory={(index) => onClickCategoryHandler(index)}/>
-        <Sort value={sort} onChangeSort={(index) => onChangeSortHandler(index)}/>
+        <Sort/>
       </div>
       <h1 className="content__title">Все пиццы</h1>
       <div className="content__items">
@@ -100,7 +132,7 @@ const Home = () => {
             : pizza
         }
       </div>
-      <div className="observer"></div>
+      <div ref={observerRef} className="observer"></div>
     </>
   );
 };
